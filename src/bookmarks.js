@@ -2,10 +2,36 @@ import $ from "jquery";
 import cuid from "cuid";
 import store from "./store";
 import api from "./api";
-import "./index.css";
+import "./style.css";
+
+const templateError = () => {
+  return `<div id='the-x' class ='x-modal' aria-modal = 'true'>
+    <div class = 'X-content'>
+    <span class = 'close'> X </span>
+    <p> ${error}/p>
+    </div>
+    </div>`;
+};
+
+const closeX = () => {
+  $("main").on("click", "span", function () {
+    console.log("the X was onClick");
+    $(".x-modal").css("display", "none");
+  });
+};
+
+const renderError = () => {
+  if (store.error) {
+    let error = store.error;
+    $(".x-modal").html(templateError(error));
+    $(".x-modal").css("display", "block");
+  } else {
+    $(".error-content").empty();
+  }
+};
 
 const render = () => {
-  //renderError();
+  renderError();
   if (store.adding) {
     $(".js-mainBM").html(templateAdd());
     console.log("adding Bookmark");
@@ -17,7 +43,7 @@ const render = () => {
 };
 // INITIALIZE PROMISE
 const init = () => {
-  api.getBookmarks().then((bookmarks) => {
+  api.getBookmark().then((bookmarks) => {
     bookmarks.forEach((bookmark) => store.addBookmark(bookmark));
     // console loggin to see if it is working.
     console.log(bookmarks);
@@ -25,7 +51,7 @@ const init = () => {
   });
 };
 
-const getID = () => {
+const getID = (bookmark) => {
   return $(bookmark).closest(".jsBMElement").data("bookmark-id");
 };
 
@@ -54,15 +80,24 @@ const handleExpCancel = () => {
   });
 };
 
+const handleExpandClick = () => {
+  $(".js-mainBM").on("click", ".jsBMElement", function (event) {
+    let id;
+    id = getID(event.currentTarget);
+    store.whenExpanded(id);
+    render();
+  });
+};
+
 const handleSubmitBookmark = () => {
   $(".js-mainBM").on("submit", ".addBMForm", function (event) {
     event.preventDefault();
     let newBookmark = {
       id: cuid(),
       title: `${$(this).find("#titleNB").val()}`,
-      rating: `${$(this).find("#js-filter-NB").val()}`,
       url: `${$(this).find("#urlNB").val()}`,
       desc: `${$(this).find("#descriptionNB").val()}`,
+      rating: `${$(this).find("#js-filter-NB").val()}`,
     };
     console.log(newBookmark);
     api
@@ -93,10 +128,9 @@ const handleDelete = () => {
     const id = getID(event.currentTarget);
     // PROMISE when a bookmark is deteled
     api
-      .deleteBookmar(id)
+      .deleteBookmark(id)
       .then(() => {
         store.findAndDelete(id);
-
         console.log(store.bookmarks);
         render();
       })
@@ -138,17 +172,47 @@ const templateStars = (starNum) => {
   return starStr;
 };
 // template HTMLS as single Strings.
-const templateMain = () => {
-  return `<section class="containerUp">
+const formBMList = () => {
+  let itemStr = " ";
+  store.bookmarks.forEach(function (bookmark) {
+    if (bookmark.rating >= store.filter) {
+      if (bookmark.expanded) {
+        itemStr += `<li class = 'jsBMElement' data-bookmark-id = '${
+          bookmark.id
+        }'>${bookmark.title}
+                <p> Visit Site: <a target"_blank" hrfe = ${
+                  bookmark.url
+                } </a> </p>
+                <p> Rating: ${templateStars(bookmark.rating)} </p>
+                <p> ${bookmark.desc}</p>
+                <div class = "deleteBM">
+                 <button class = "btnDel" name = "btnDelete" type = "button"> Delete </button>
+                 <button class = "btnCol" name ="btnCollapse" type = "button"> Collapse </button>
+                </div> 
+                </li>
+                `;
+      } else {
+        // this part is to create the title and the rating "collapsiable" so qhen the user click it can see more details about the bookmark" if not keep it collapse.
+        itemStr += ` <button class="jsBMElement" data-bookmark-id = '${
+          bookmark.id
+        }'>
+                <span class = 'stars'>${templateStars(bookmark.rating)}</span>
+                ${bookmark.title} </button>`;
+      }
+    }
+  });
+  return itemStr;
+};
+
+const templateMain = () => `<section class="containerUp">
         <div class="newBM">
           <button class="btnNew" name="btnNew" type="button">
             +New Bookmark
           </button>
         </div>
         <div class="filterBy">
-          <label for="filter"> Filter By:</label>
           <select id="js-filter" name="filter">
-            <option value="" selected="selected">Filter</option>
+            <option value="" selected="selected"> Filter By &#9733 </option>
             <option value="1">${templateStars(1)}</option>
             <option value="2">${templateStars(2)}</option>
             <option value="3">${templateStars(3)}</option>
@@ -157,12 +221,12 @@ const templateMain = () => {
           </select>
         </div>
       </section> 
-      <section role = 'tabs' class = 'bookmarks' aria = 'true'>
-      <ul role = 'tabL' aria-label 'Bookmark Tabs' class = 'js-ulBM'>
-      ${formBMList()}
-     </ul> 
+      <section role ="tabs" class="bookmarks" aria ="true">
+      <ul role = 'tabL' aria-label='Bookmark tabs' class ='js-ulBM'>
+       ${formBMList()}
+      </ul> 
      </section>
-     <div class = 'error-content' aria-modal = 'true'>
+     <div class='error-content' aria-modal = 'true'>
                   <div id = 'the-x' class = 'x-modal'>
                      <div class = 'X-content'>
                         <span class = 'close'> X </span>
@@ -171,7 +235,6 @@ const templateMain = () => {
                   </div>
                 </div>
       `;
-};
 
 const templateAdd = () => {
   return `<form class="addBMForm">
@@ -212,77 +275,9 @@ const templateAdd = () => {
           `;
 };
 
-const formBMList = () => {
-  let itemStr = " ";
-  console.log(store.bookmarks);
-  store.bookmarks.forEach(function (bookmark) {
-    if (bookmark.rating >= store.filter) {
-      if (bookmark.expanded) {
-        itemStr += `<li class = 'jsBMElement' data-bookmark-id = '${
-          bookmark.id
-        }'>${bookmark.title}
-                <p> Visit Site: <a target"_blank" hrfe = ${
-                  bookmark.url
-                } </a> </p>
-                <p> Rating: ${templateStars(bookmark.rating)} </p>
-                <p> ${bookmark.desc}</p>
-                <div class = "deleteBM">
-                 <label for = "btnDelete" > Delete or Collapse </label>
-                 <button class = "btnDel" name = "btnDelete" type = "button"> Delete BM </button>
-                 <button class = "btnCol" name = "btnCollapse" type = "button"> Collapse BM </button>
-                </div> 
-                </li>
-                <div class = 'error-content' aria-modal = 'true'>
-                  <div id = 'the-x' class = 'x-modal'>
-                     <div class = 'X-content'>
-                        <span class = 'close'> X </span>
-                        <p> </p>
-                     </div>
-                  </div>
-                </div>
-                `;
-      } else {
-        // this part is to create the title and the rating "collapsiable" so qhen the user click it can see more details about the bookmark" if not keep it collapse.
-        itemStr += ` <button class="jsBMElement" data-bookmark-id = '${
-          bookmark.id
-        }'>
-                <span class = 'stars'>${templateStars(bookmark.rating)}</span>
-                ${bookmark.title} </button>`;
-      }
-    }
-  });
-  return itemStr;
-};
-
-const templateError = () => {
-  return `<div id = 'the-x' class ='x-modal' aria-modal = 'true'>
-    <div class = 'X-content'>
-    <span class = 'close'> X </span>
-    <p> ${error}/p>
-    </div>
-    </div>`;
-};
-
-const closeX = () => {
-  $("main").click("span", function () {
-    console.log("the X was onClick");
-    $(".x-modal").css("display", "none");
-  });
-};
-
-const renderError = () => {
-  if (store.error) {
-    let error = store.error;
-    $(".x-modal").html(templateError(error));
-    $(".x-modal").css("display", "block");
-  } else {
-    $(".error-content").empty();
-  }
-};
-
 const bindEventListeners = () => {
   handleAdd();
-  handleExpCancel();
+  handleExpandClick();
   handleSubmitBookmark();
   onCancel();
   handleDelete();

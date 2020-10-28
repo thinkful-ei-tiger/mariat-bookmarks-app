@@ -4,47 +4,48 @@ let error = null;
 let filter = 0;
 let expanded = false;
 
-// this function will find if tje current Bookmark has any ID.. if not will add a new ID.
-const findById = (id) => {
-  return this.bookmarks.find((currentBookmark) => currentBookmark.id === id);
-};
-
-// function to add a new bookmark to our empty array
+// BOOKMARK FUNCTIONS
 const addBookmark = (bookmark) => {
   bookmark.expanded = false;
-  this.bookmarks.push(bookmark);
+  bookmarks.push(bookmark);
+};
+
+const findById = (id) => {
+  return bookmarks.find((currentBookmark) => currentBookmark.id === id);
 };
 
 // this function will determine the status of the expanded to FALSE.
 // this is the toggle function
 const whenExpanded = (id) => {
-  let bookmark = this.findById(id);
+  let bookmark = findById(id);
   bookmark.expanded = !bookmark.expanded;
 };
 
 const findAndDelete = () => {
-  this.bookmarks = this.bookmarks.filter(
-    (currentItem) => currentItem.id !== id
-  );
+  bookmarks = bookmarks.filter((currentItem) => currentItem.id !== id);
 };
 
 const configFilter = (num) => {
-  this.filter = num;
+  filter = num;
 };
 
 const configError = (message) => {
-  this.error = message;
+  error = message;
 };
 
 const getError = () => {
-  return this.error;
+  return error;
 };
 
 const cleanError = () => {
-  this.error = null;
+  error = null;
 };
 
 export default {
+  bookmarks,
+  adding,
+  error,
+  filter,
   addBookmark,
   findById,
   whenExpanded,
