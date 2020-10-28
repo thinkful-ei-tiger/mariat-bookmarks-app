@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Bookmark-mariat</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css"
+    />
+    <link rel="stylesheet" href="index.css" />
+  </head>
+
+  <body>
+    <header>
+      <h1>BOOKMARK APP</h1>
+    </header>
+    <main role="main" class="js-mainBM" aria-live="assertive">
+      <section class="containerUp">
+        <div class="newBM">
+          <button class="btnNew" name="btnNew" type="button">
+            +New Bookmark
+          </button>
+        </div>
+        <div class="filterBy">
+          <label for="filter"> Filter By:</label>
+          <select id="js-filter" name="filter">
+            <option value="" selected="selected">Filter</option>
+            <option value="oneStart">One Start</option>
+            <option value="twoStart">Two Starts</option>
+            <option value="threeStart">Three Starts</option>
+            <option value="fourStart">Four Starts</option>
+            <option value="fiveStart">Five Starts</option>
+          </select>
+        </div>
+      </section>
+      <section class="bookmarks">
+        <ul>
+          <li class="expanded">Bookmark #1</li>
+          <p>Link</p>
+          <p>Start Rating</p>
+          <p>Description</p>
+          <li>Bookmark #2</li>
+          <li>Bookmark #3</li>
+          <li>Bookmark #4</li>
+          <li>Bookmark #5</li>
+          <li>Bookmark #6</li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

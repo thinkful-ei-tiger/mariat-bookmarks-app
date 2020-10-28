@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Bookmark-mariat</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css"
+    />
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <header>
+      <h1>BOOKMARK APP</h1>
+    </header>
+    <main class="js-main-state" aria-live="assertive">
+      <form class="addBMForm">
+        <fieldset name="formField">
+          <label for="urlNB">Add a new Bookmark:</label>
+          <input type="text" name="urlNB" placeholder="http://..." required />
+          <label for="titleNB">Title: </label>
+          <input type="text" name="titleNB" placeholder=" Site Title" />
+          <label for="descriptionNB">Description:</label>
+          <input
+            type="text"
+            name="descriptionNB"
+            placeholder="Add a description..."
+          />
+          <label for="addFilter">Star Rating: </label>
+          <select id="js-filter-NB" name="addfilter">
+            <option value="" selected="selected">Filter</option>
+            <option value="oneStart">One Start</option>
+            <option value="twoStart">Two Starts</option>
+            <option value="threeStart">Three Starts</option>
+            <option value="fourStart">Four Starts</option>
+            <option value="fiveStart">Five Starts</option>
+          </select>
+          <p>Alert for input ERRORS!</p>
+          <button class="btnSubmitNB" type="submit">Submit</button>
+          <button class="btnCancelNB" type="reset">Cancel</button>
+        </fieldset>
+      </form>
+    </main>
+  </body>
+</html>
