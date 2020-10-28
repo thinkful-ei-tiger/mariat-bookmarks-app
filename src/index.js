@@ -1,6 +1,6 @@
 import $ from "jquery";
-import ".index.css";
-import list from "/.bookmarks";
+import "./style.css";
+import list from "./bookmarks";
 
 const main = () => {
   list.init();
