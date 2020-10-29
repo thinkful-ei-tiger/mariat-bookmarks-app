@@ -2,162 +2,61 @@ import $ from "jquery";
 import cuid from "cuid";
 import store from "./store";
 import api from "./api";
-import "./style.css";
 
-const templateError = () => {
-  return `<div id='the-x' class ='x-modal' aria-modal = 'true'>
-    <div class = 'X-content'>
-    <span class = 'close'> X </span>
-    <p> ${error}/p>
-    </div>
-    </div>`;
+// Error Functions
+const generateError = function (message) {
+  return `
+      <section class="error-content">
+        <button id="cancel-error">X</button>
+        <p>${message}</p>
+      </section>
+    `;
 };
 
-const closeX = () => {
-  $("main").on("click", "span", function () {
-    console.log("the X was onClick");
-    $(".x-modal").css("display", "none");
-  });
-};
-
-const renderError = () => {
+const renderError = function () {
   if (store.error) {
-    let error = store.error;
-    $(".x-modal").html(templateError(error));
-    $(".x-modal").css("display", "block");
+    const el = generateError(store.error);
+    $(".error-container").html(el);
   } else {
-    $(".error-content").empty();
+    $(".error-container").empty();
   }
 };
 
+const handleCloseError = function () {
+  $("main").on("click", "#cancel-error", () => {
+    store.setError(null);
+    renderError();
+  });
+};
+
+// RENDER Function <3 you're everywhere
 const render = () => {
-  renderError();
   if (store.adding) {
     $(".js-mainBM").html(templateAdd());
+    // consoleLog to check workflow
     console.log("adding Bookmark");
   } else {
     const htmlStr = templateMain();
     console.log("render main template");
     $(".js-mainBM").html(htmlStr);
   }
+  renderError();
 };
-// INITIALIZE PROMISE
+
+// Initialization of my PROMISE to get the Bookmarks.
 const init = () => {
   api.getBookmark().then((bookmarks) => {
     bookmarks.forEach((bookmark) => store.addBookmark(bookmark));
-    // console loggin to see if it is working.
-    console.log(bookmarks);
+    //console.log(bookmarks);
     render();
   });
 };
-
+//
 const getID = (bookmark) => {
   return $(bookmark).closest(".jsBMElement").data("bookmark-id");
 };
 
-// NOW FUNCTIONS TO HANDLE THE event LISTENERS
-const handleAdd = () => {
-  $(".js-mainBM").on("click", ".btnNew", function () {
-    store.adding = true;
-    console.log(store.adding);
-    render();
-  });
-};
-
-const handleCancelAdd = () => {
-  $(".js-mainBM").on("click", ".btnCancelNB", function () {
-    store.adding = false;
-    render();
-  });
-};
-
-const handleExpCancel = () => {
-  $(".js-mainBM").on("click", ".btnCol", function (event) {
-    let id;
-    id = getID(event.currentTarget);
-    store.whenExpanded(id);
-    render();
-  });
-};
-
-const handleExpandClick = () => {
-  $(".js-mainBM").on("click", ".jsBMElement", function (event) {
-    let id;
-    id = getID(event.currentTarget);
-    store.whenExpanded(id);
-    render();
-  });
-};
-
-const handleSubmitBookmark = () => {
-  $(".js-mainBM").on("submit", ".addBMForm", function (event) {
-    event.preventDefault();
-    let newBookmark = {
-      id: cuid(),
-      title: `${$(this).find("#titleNB").val()}`,
-      url: `${$(this).find("#urlNB").val()}`,
-      desc: `${$(this).find("#descriptionNB").val()}`,
-      rating: `${$(this).find("#js-filter-NB").val()}`,
-    };
-    console.log(newBookmark);
-    api
-      .createBookmark(newBookmark)
-      .then((newBM) => {
-        console.log(newBM);
-        store.adding = false;
-        render();
-      })
-      .catch((err) => {
-        store.configError(err.message);
-        renderError();
-      });
-  });
-};
-
-// function to cancel the page and render the bookmark #1 state.
-const onCancel = () => {
-  $(".js-mainBM").on("click", ".btnCancelNB", function () {
-    store.adding = false;
-    render();
-  });
-};
-
-const handleDelete = () => {
-  $(".js-mainBM").on("click", ".btnDel", function (event) {
-    event.preventDefault();
-    const id = getID(event.currentTarget);
-    // PROMISE when a bookmark is deteled
-    api
-      .deleteBookmark(id)
-      .then(() => {
-        store.findAndDelete(id);
-        console.log(store.bookmarks);
-        render();
-      })
-      // using catch without TRY lol as we use in the shopping-list app
-      .catch((error) => {
-        store.configError(error.message);
-        render();
-      });
-  });
-};
-
-const handleFilter = () => {
-  $(".js-mainBM").on("change", "#js-filter", function () {
-    let filter = $(this).val();
-    store.configFilter(filter);
-    render();
-  });
-};
-
-const handleEmptyErrBtn = () => {
-  $(".js-mainBM").on("click", "#cancelError", function () {
-    store.cleanError();
-    render();
-  });
-};
-
-// this function is to generate the stars unicode style
+// this function is to generate the stars unicode as strings to use them in the ratings.
 const templateStars = (starNum) => {
   let starStr = "";
   for (let i = 0; i < 5; i++) {
@@ -171,7 +70,8 @@ const templateStars = (starNum) => {
   }
   return starStr;
 };
-// template HTMLS as single Strings.
+
+// This is in charge of create the template forEach element that is added to the bookmark app.
 const formBMList = () => {
   let itemStr = " ";
   store.bookmarks.forEach(function (bookmark) {
@@ -179,24 +79,26 @@ const formBMList = () => {
       if (bookmark.expanded) {
         itemStr += `<li class = 'jsBMElement' data-bookmark-id = '${
           bookmark.id
-        }'>${bookmark.title}
-                <p> Visit Site: <a target"_blank" hrfe = ${
+        }'><p class="upper-case"> ${bookmark.title} <p>
+                <p>Visit Site:👉🏻<a target="_blank" href='${
                   bookmark.url
-                } </a> </p>
+                }'> Click Here! </a> </p>
                 <p> Rating: ${templateStars(bookmark.rating)} </p>
+                <label> Description👇🏻</label>
+                <div class= "box">
                 <p> ${bookmark.desc}</p>
+                </div>
                 <div class = "deleteBM">
                  <button class = "btnDel" name = "btnDelete" type = "button"> Delete </button>
-                 <button class = "btnCol" name ="btnCollapse" type = "button"> Collapse </button>
                 </div> 
                 </li>
                 `;
       } else {
-        // this part is to create the title and the rating "collapsiable" so qhen the user click it can see more details about the bookmark" if not keep it collapse.
+        //  this is the "collapsiable" thing reduce to a single button with Title + Rating.
         itemStr += ` <button class="jsBMElement" data-bookmark-id = '${
           bookmark.id
         }'>
-                <span class = 'stars'>${templateStars(bookmark.rating)}</span>
+                <span class='stars'>${templateStars(bookmark.rating)}</span>
                 ${bookmark.title} </button>`;
       }
     }
@@ -221,34 +123,29 @@ const templateMain = () => `<section class="containerUp">
           </select>
         </div>
       </section> 
-      <section role ="tabs" class="bookmarks" aria ="true">
-      <ul role = 'tabL' aria-label='Bookmark tabs' class ='js-ulBM'>
+      <section role ="tabs" class="bookmarks" aria="true">
+      <ul aria-label="Bookmark tabs" class ='js-ulBM'>
        ${formBMList()}
       </ul> 
      </section>
-     <div class='error-content' aria-modal = 'true'>
-                  <div id = 'the-x' class = 'x-modal'>
-                     <div class = 'X-content'>
-                        <span class = 'close'> X </span>
-                        <p> </p>
-                     </div>
-                  </div>
-                </div>
+    <div class="error-container">
+      <section class="error-content">
+       <button id='cancel-error'>X</button>
+        <p> </p>
+     </section>
+    </div>
       `;
 
 const templateAdd = () => {
   return `<form class="addBMForm">
         <fieldset name="formField">
-          <label for="urlNB">Add a new Bookmark:</label>
-          <input id = "urlNB" type="text" name="url" placeholder="http://..." required />
-          <label for="titleNB">Title: </label>
-          <input type="text" name="title" placeholder=" Site Title" />
-          <label for="descriptionNB">Description:</label>
-          <input id = 
-            type="text"
-            name="desc"
-            placeholder="Add a description..."
-          />
+          <label for="urlNB">Bookmark Link:</label>
+          <input id = "url" type="text" minlength="5" name="url" placeholder="http://..." required />
+          <label for="title">Title: </label>
+          <input id= "title" type="text" name="title" placeholder=" Site Title" />
+          <label for="desc">Description:</label>
+         <textarea id ="desc" type="text" name="desc" minlength="1"
+            placeholder="Add a description..." ></textarea>
           <label for="addFilter">Star Rating: </label>
           <select id="js-filter-NB" name="addfilter">
             <option value="" selected="selected">Filter</option>
@@ -258,37 +155,118 @@ const templateAdd = () => {
             <option value="4">${templateStars(4)}</option>
             <option value="5">${templateStars(5)}</option>
           </select>
-          <div class = 'Xdiv'>
+          <div class='submit-cancel'>
           <button class="btnSubmitNB" type="submit">Submit</button>
-          <button class="btnCancelNB" type="button">Cancel</button>
+          <button class="btnCancel" type="button">Cancel</button>
           </div>
-          <div class = 'error-content' aria-modal = 'true'>
-                  <div id = 'the-x' class = 'x-modal'>
-                     <div class = 'X-content'>
-                        <span class = 'close'> X </span>
-                        <p> </p>
-                     </div>
-                  </div>
-                </div>
-          </fieldset>
-          </form>
+           </section>
+           <div class="error-container">
+               <section class ="error-content">
+                <button id='cancel-error'>X</button>
+                <p> </p>
+              </section>
+           </div>
+        </fieldset>
+      </form>
           `;
+};
+
+// NOW EVENT LISTENERS...
+// this one is in charge of Filter the bookmarks depending on the rating.
+const handleFilter = () => {
+  $(".js-mainBM").on("change", "#js-filter", function () {
+    let filter = $(this).val();
+    store.setFilter(filter);
+    render();
+  });
+};
+
+// when the add button is clicked....
+const handleAdd = () => {
+  $(".js-mainBM").on("click", ".btnNew", function () {
+    store.adding = true;
+    console.log(store.adding);
+    render();
+  });
+};
+
+// You can either submit a new bookmark or go to the next Event Listener
+const handleSubmitBookmark = () => {
+  $(".js-mainBM").on("submit", ".addBMForm", function (event) {
+    event.preventDefault();
+    let newBookmark = {
+      id: cuid(),
+      title: `${$(this).find("#title").val()}`,
+      url: `${$(this).find("#url").val()}`,
+      desc: `${$(this).find("#desc").val()}`,
+      rating: `${$(this).find("#js-filter-NB").val()}`,
+    };
+    //console.log(newBookmark);
+    //Promise when creating a new Bookmark
+    api
+      .createBookmark(newBookmark)
+      .then((newBM) => {
+        console.log(newBM);
+        store.adding = false;
+        render();
+      })
+      .catch((error) => {
+        console.log(error);
+        store.setError(error.message);
+        renderError();
+      });
+  });
+};
+
+// this listen to the cancel Button in the form and then in the event delegation it comes back to the state #1.
+const HandleCancel = () => {
+  $(".js-mainBM").on("click", ".btnCancel", function () {
+    store.adding = false;
+    render();
+  });
+};
+
+// this event listener is for the element, so when it toggles it expanded and unexpanded the whole element.
+const handleExpandClick = () => {
+  $(".js-mainBM").on("click", ".jsBMElement", function (event) {
+    let id = getID(event.currentTarget);
+    store.whenExpanded(id);
+    render();
+  });
+};
+// this is to Delete a selected Bookmark.
+const handleDelete = () => {
+  $(".js-mainBM").on("click", ".btnDel", function (event) {
+    event.preventDefault();
+    const id = getID(event.currentTarget);
+    // PROMISE when a bookmark is deteled
+    api
+      .deleteBookmark(id)
+      .then(() => {
+        store.findAndDelete(id);
+        console.log(store.bookmarks);
+        render();
+      })
+      // using catch without TRY lol as we use in the shopping-list app
+      .catch((error) => {
+        store.setError(error.message);
+        render();
+      });
+  });
 };
 
 const bindEventListeners = () => {
   handleAdd();
   handleExpandClick();
   handleSubmitBookmark();
-  onCancel();
+  HandleCancel();
   handleDelete();
   handleFilter();
-  handleEmptyErrBtn;
-  handleCancelAdd();
-  closeX();
+  handleCloseError();
 };
 
+// I'm exporting this functions so that in the main() they can be called.
 export default {
   bindEventListeners,
   init,
-  render,
 };

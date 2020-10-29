@@ -14,8 +14,6 @@ const findById = (id) => {
   return bookmarks.find((currentBookmark) => currentBookmark.id === id);
 };
 
-// this function will determine the status of the expanded to FALSE.
-// this is the toggle function
 const whenExpanded = (id) => {
   let bookmark = findById(id);
   bookmark.expanded = !bookmark.expanded;
@@ -25,20 +23,12 @@ const findAndDelete = () => {
   bookmarks = bookmarks.filter((currentItem) => currentItem.id !== id);
 };
 
-const configFilter = (num) => {
-  filter = num;
+const setFilter = function (num) {
+  this.filter = num;
 };
 
-const configError = (message) => {
-  error = message;
-};
-
-const getError = () => {
-  return error;
-};
-
-const cleanError = () => {
-  error = null;
+const setError = function (message) {
+  this.error = message;
 };
 
 export default {
@@ -50,8 +40,6 @@ export default {
   findById,
   whenExpanded,
   findAndDelete,
-  configFilter,
-  configError,
-  getError,
-  cleanError,
+  setFilter,
+  setError,
 };

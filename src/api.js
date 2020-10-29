@@ -1,28 +1,32 @@
 const BASE_URL = "https://thinkful-list-api.herokuapp.com/mariat";
 
-async function listApiFetch(...args) {
+const listApiFetch = function (...args) {
   let error;
-  const res = await fetch(...args);
-  if (!res.ok) {
-    error = { code: res.status };
-    if (!res.headers.get("content-type").includes("json")) {
-      error.message = res.statusText;
-      return Promise.reject(error);
-    }
-  }
-  const data = await res.json();
-  if (error) {
-    error.message = data.message;
-    return Promise.reject(error);
-  }
-  return data;
-}
-
-// CRUD HERE
-// GET method to review the DATA
-const getBookmark = () => {
-  return listApiFetch(`${BASE_URL}/bookmarks`);
+  return fetch(...args)
+    .then((res) => {
+      if (!res.ok) {
+        error = { code: res.status };
+        if (!res.headers.get("content-type").includes("json")) {
+          error.message = res.statusText;
+          return Promise.reject(error);
+        }
+      }
+      return res.json();
+    })
+    .then((data) => {
+      if (error) {
+        error.message = data.message;
+        return Promise.reject(error);
+      }
+      return data;
+    });
 };
+
+// CRUD HERE -> shouln't be CGUD? -°°-
+// GET method to review the DATA
+function getBookmark() {
+  return listApiFetch(`${BASE_URL}/bookmarks`);
+}
 
 // POST METHOD to make an action to backEnd and retrieve data.
 const createBookmark = (bookmark) => {
@@ -53,7 +57,6 @@ const deleteBookmark = (id) => {
 };
 
 export default {
-  listApiFetch,
   getBookmark,
   createBookmark,
   updateBookmark,
