@@ -247,7 +247,6 @@ const handleDelete = () => {
         console.log(store.bookmarks);
         render();
       })
-      // using catch without TRY lol as we use in the shopping-list app
       .catch((error) => {
         store.setError(error.message);
         render();
