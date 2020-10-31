@@ -88,8 +88,8 @@ const formBMList = () => {
                 <div class= "box">
                 <p> ${bookmark.desc}</p>
                 </div>
-                <div class = "deleteBM">
-                 <button class = "btnDel" name = "btnDelete" type = "button"> Delete </button>
+                <div class="deleteBM">
+                 <button class = "btnDel" name ="btnDelete" type ="button"> Delete </button>
                 </div> 
                 </li>
                 `;
@@ -139,7 +139,7 @@ const templateMain = () => `<section class="containerUp">
 const templateAdd = () => {
   return `<form class="addBMForm">
         <fieldset name="formField">
-          <label for="urlNB">Bookmark Link:</label>
+          <label for="url">Bookmark Link:</label>
           <input id = "url" type="text" minlength="5" name="url" placeholder="http://..." required />
           <label for="title">Title: </label>
           <input id= "title" type="text" name="title" placeholder=" Site Title" />
@@ -148,7 +148,7 @@ const templateAdd = () => {
             placeholder="Add a description..." ></textarea>
           <label for="addFilter">Star Rating: </label>
           <select id="js-filter-NB" name="addfilter">
-            <option value="" selected="selected">Filter</option>
+            <option value="text" selected="selected">Filter</option>
              <option value="1">${templateStars(1)}</option>
             <option value="2">${templateStars(2)}</option>
             <option value="3">${templateStars(3)}</option>
@@ -207,7 +207,7 @@ const handleSubmitBookmark = () => {
       .createBookmark(newBookmark)
       .then((newBM) => {
         console.log(newBM);
-        store.adding = false;
+        store.addBookmark(newBM);
         render();
       })
       .catch((error) => {
@@ -230,7 +230,7 @@ const HandleCancel = () => {
 const handleExpandClick = () => {
   $(".js-mainBM").on("click", ".jsBMElement", function (event) {
     let id = getID(event.currentTarget);
-    store.whenExpanded(id);
+    store.toggleExpanded(id);
     render();
   });
 };
@@ -238,7 +238,8 @@ const handleExpandClick = () => {
 const handleDelete = () => {
   $(".js-mainBM").on("click", ".btnDel", function (event) {
     event.preventDefault();
-    const id = getID(event.currentTarget);
+    let id = getID(event.currentTarget);
+    alert("Are you sure? this can't be undone!");
     // PROMISE when a bookmark is deteled
     api
       .deleteBookmark(id)

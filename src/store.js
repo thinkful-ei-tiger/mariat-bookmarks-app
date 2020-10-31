@@ -5,22 +5,24 @@ let filter = 0;
 let expanded = false;
 
 // BOOKMARK FUNCTIONS
-const addBookmark = (bookmark) => {
+const addBookmark = function (bookmark) {
   bookmark.expanded = false;
-  bookmarks.push(bookmark);
+  this.bookmarks.push(bookmark);
 };
 
-const findById = (id) => {
-  return bookmarks.find((currentBookmark) => currentBookmark.id === id);
+const findById = function (id) {
+  return this.bookmarks.find((currentBookmark) => currentBookmark.id === id);
 };
 
-const whenExpanded = (id) => {
-  let bookmark = findById(id);
+const toggleExpanded = function (id) {
+  let bookmark = this.findById(id);
   bookmark.expanded = !bookmark.expanded;
 };
 
-const findAndDelete = () => {
-  bookmarks = bookmarks.filter((currentItem) => currentItem.id !== id);
+const findAndDelete = function (id) {
+  this.bookmarks = this.bookmarks.filter(
+    (currentItem) => currentItem.id !== id
+  );
 };
 
 const setFilter = function (num) {
@@ -38,7 +40,7 @@ export default {
   filter,
   addBookmark,
   findById,
-  whenExpanded,
+  toggleExpanded,
   findAndDelete,
   setFilter,
   setError,

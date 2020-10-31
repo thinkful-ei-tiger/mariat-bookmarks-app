@@ -8,13 +8,12 @@
 body {
   background-image: linear-gradient(
     to right,
-    red,
-    orange,
     yellow,
-    green,
-    blue,
-    indigo,
-    violet
+    rgba(245, 222, 10, 0.966),
+    rgb(255, 208, 0),
+    rgba(200, 2, 200, 0.986),
+    purple,
+    indigo
   );
   display: flex;
   justify-content: center;
