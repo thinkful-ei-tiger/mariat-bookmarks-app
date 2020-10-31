@@ -113,8 +113,8 @@ const templateMain = () => `<section class="containerUp">
           </button>
         </div>
         <div class="filterBy">
-          <select id="js-filter" name="filter">
-            <option value="" selected="selected"> Filter By &#9733 </option>
+         <label> <select id="js-filter" name="filter">
+            <option value="" selected="selected">Filter By &#9733 </option> </label>
             <option value="1">${templateStars(1)}</option>
             <option value="2">${templateStars(2)}</option>
             <option value="3">${templateStars(3)}</option>
