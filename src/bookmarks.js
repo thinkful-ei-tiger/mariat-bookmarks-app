@@ -208,6 +208,7 @@ const handleSubmitBookmark = () => {
       .then((newBM) => {
         console.log(newBM);
         store.addBookmark(newBM);
+        store.adding = false;
         render();
       })
       .catch((error) => {
