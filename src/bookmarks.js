@@ -218,7 +218,7 @@ const handleSubmitBookmark = () => {
   });
 };
 
-// this listen to the cancel Button in the form and then in the event delegation it comes back to the state #1.
+// this listen to the cancel Button in the form and then in render() display the main template.
 const HandleCancel = () => {
   $(".js-mainBM").on("click", ".btnCancel", function () {
     store.adding = false;
